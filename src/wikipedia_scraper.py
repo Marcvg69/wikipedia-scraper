@@ -43,6 +43,7 @@ def fetch_summary_for_leader(leader):
     except:
         return leader
     return
+
 class WikipediaScraper:
     def __init__(self):
         # Base URL and endpoints

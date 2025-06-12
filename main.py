@@ -1,6 +1,10 @@
 # main.py
 from src.wikipedia_scraper import WikipediaScraper
 
+# RuntimeError:
+#An attempt has been made to start a new process before the
+#current process has finished its bootstrapping phase.
+# Why?On macOS (and Windows), multiprocessing requires your code to be protected under... if statement below:
 if __name__ == "__main__":
 
     scraper = WikipediaScraper()

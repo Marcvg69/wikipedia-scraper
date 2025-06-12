@@ -5,115 +5,139 @@
 - Duration: `3 days`
 - Deadline: `13/06/2025 4:30 PM`
 - Team: `solo`
+- Author: Marc Van Goolen
 
-## Mission Objectives
+This project demonstrates how to collect structured and semi-structured data from an open API and enrich it with data scraped from Wikipedia.
 
-In this project, we will guide you step by step through the process of:
-
-1. Creating a self-contained development environment (virtual environment)
-2. Retrieving some information from an API
-3. Leveraging your knowledge to scrape a website that does not provide an API
-4. Saving the output for later processing
-
-More specifically, in this project we will query an API to obtain a list of countries and their past political leaders. We then extract and sanitize their short bio from Wikipedia. Finally, we save the data.
-
-Scraping data is often the first coding step of a data science project (meaning, the data collection) and you will likely come back to it in the future.
-
-![scraping](https://media4.giphy.com/media/Xe02toxlUsztG7iQgb/giphy.gif?cid=ecf05e47lixeo6qe5y4ooabkh0hfdz0t1pio4h0qgbngjq0n&ep=v1_gifs_search&rid=giphy.gif&ct=g)
-
-## Learning Objectives
-
-- Use [venv](https://docs.python.org/3/library/venv.html) to isolate your Python environment
-- Use [requests](https://requests.readthedocs.io/en/latest/) to call an external API are any internet link
-- Use [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) to extract text from HTML
-- Use proper exception handling
-- Get comfortable with JSON 
-- (_Optional_) Use OOP to split functionalities into classes and methods
-- (_Optional_) Use regex to clean text data
-- (_Optional_) Use multiprocessing to speedup your code
-
-## The Mission
-
-Create a scraper that builds a JSON file with the political leaders of each country you get from [this API](https://country-leaders.onrender.com/docs).
-
-Include in this file the first paragraph of the Wikipedia page of these leaders (you'll retrieve the Wikipedia page URL from the API, which you then have to scrape yourself).
-
-### Must-have features (MVP)
-
-- You should have a working `wikipedia_scraper.ipynb` notebook that calls the API and creates a JSON file
-- Create your own exception to include proper exception handling
-- Have a nice README that explains your project.
-
-### Nice-to-have features
-
-- Use [Session()](https://requests.readthedocs.io/en/latest/user/advanced/) from the `requests` library instead of `get()`
-- A switch to store the output as CSV instead of JSON
-- Speed up the execution using multiprocessing
-
-### Steps
-
-Let's get to the heart of it. **Read through all of the below before starting!**
-
-#### 0. Setup and preparation
-- Create a GitHub repo with a name that makes sense (for example, `wikipedia-scraper`)
-- Create a virtual environment using [venv](https://docs.python.org/3/library/venv.html). Don't forget to add it to your `.gitignore` file.
-- **Read the docs from the [API](https://country-leaders.onrender.com/docs)!**
-- Copy the `wikipedia_scraper.ipynb` file from your fork into your new project repo.
-You're ready to go!
-
-#### 1. Complete the first MVP (Notebook)
-- Activate your environment and install the required modules (e.g. request, and beautifulsoup). 
-- Create a `requirements.txt` file with the required libraries (hint: pip freeze and pipreqs might be helpful here!)
-
-- ** Now work your way through the `wikipedia_scraper.ipynb` notebook.** This notebook contains hints on calling the API endpoint, handling cookies, and extracting text with `BeautifulSoup`. Try to fill in the cells with appropriate and working code. 
-
-Once ready, move on to the next step and integrate your code into functions, create a `src` folder where you'll put the `leaders_scraper.py` 
-
-#### 2a. A `scraper.py` module (Second MVP - OOP)
-
-Now that you've made sure your code works! Let's practice restructuring your solution as a class.
-
-Code up a `WikipediaScraper` scraper object that allows you to structurally retrieve data from the API.
-
-The object should contain at least these six attributes: 
-- `base_url: str` containing the base url of the API (https://country-leaders.onrender.com)
-- `country_endpoint: str` → `/countries` endpoint to get the list of supported countries
-- `leaders_endpoint: str` → `/leaders` endpoint to get the list of leaders for a specific country
-- `cookies_endpoint: str` → `/cookie` endpoint to get a valid cookie to query the API
-- `leaders_data: dict` is a dictionary where you store the data you retrieve before saving it into the JSON file
-- `cookie: object` is the cookie object used for the API calls
-
-The object should contain at least these five methods:
-- `refresh_cookie() -> object` returns a new cookie if the cookie has expired
-- `get_countries() -> list` returns a list of the supported countries from the API
-- `get_leaders(country: str) -> None` populates the `leader_data` object with the leaders of a country retrieved from the API
-- `get_first_paragraph(wikipedia_url: str) -> str` returns the first paragraph (defined by the HTML tag `<p>`) with details about the leader
-- `to_json_file(filepath: str) -> None` stores the data structure into a JSON file
-
-#### 2b. A `main.py` script
-
-Bundle everything together in a `main.py` file that calls the `WikipediaScraper` object and saves the data into a JSON file.
-
-### Quality Assurance
-
-Read our ["Coding Best Practices Manifesto"](../../guidelines/PythonCodingBestPractices/coding-best-practices-manifesto.ipynb) and apply what's in there!
-
-As an exercise, keep the must-have version separate from the nice-to-have version by using a different branch on GitHub. Please specify that in your README too.
+You will retrieve historical political leaders for several countries using a REST API, then scrape their biographies using BeautifulSoup. Finally, the data is saved locally for further use in data science workflows.
 
 
-## Deliverables
 
-1. Publish your source code on your personal GitHub repository
-    - `main.py`
-    - `src/leaders_scraper.py`
-    - `leaders_data.json` → the results file with a sensible structure containing the list of historical leaders for each country together with their details and the first paragraph (`<p>`) of the Wikipedia page
-2. Pimp up the README file
-   - Description
-   - Installation
-   - Usage
-   - Visuals
-   - ... anything else you find useful
-3. Show case your repo! We will pseudo-randomly 2-3 colleagues to share their work during Friday's debrief (4:00 PM).
+## Prerequisites
+
+Make sure you have **Python 3.12.10** installed.
+
+- Download from: https://www.python.org/downloads/release/python-31210/
+- Add Python to your system PATH.
+
+>  This project was tested with Python 3.12.10. Other versions may cause compatibility issues (e.g., with pandas or ipykernel).
+
+
+## Environment Setup
+
+This project uses a virtual environment (`.myvenv`) to isolate its dependencies.
+
+### Why use a virtual environment?
+
+- Prevents conflicts between Python packages
+- Ensures consistency across machines
+- Keeps your system Python clean
+
+### Setup Instructions
+
+install the requirements :
+pip install -r requirements.txt
+
+
+## Running the Application
+
+You can run the project either via **Jupyter Notebook** or as a **standalone script**.
+
+### Run in Notebook Mode
+
+1. Open `wikipedia_scraper.ipynb` in **VS Code**
+2. Select the `.myvenv` kernel
+3. Run each cell step by step
+
+
+### Run in Script Mode (recommended)
+
+This mode uses `main.py` to launch the full scraping pipeline. It requests the user 
+to run multi-processing mode y/n. After scraping is completed, it prompts the user 
+where to store the output (json or csv file)
+
+
+## Technologies Used
+
+- **Python 3.12.10**  
+  The main programming language used for building the entire scraping pipeline.
+
+- **`requests`**  
+  For sending HTTP requests to APIs and web pages to retrieve data.
+
+- **`beautifulsoup4`**  
+  Used for parsing and navigating HTML content from Wikipedia pages.
+
+- **`pandas`**  
+  Powerful library for manipulating and organizing data into structured DataFrames.
+
+- **`json`**  
+  Native Python module to serialize and deserialize JSON data (used for saving final output).
+
+- **`re` (regex)**  
+  Python's built-in regular expressions module for text pattern matching and data cleaning.
+
+- **`multiprocessing`** *(optional)*  
+  For parallelizing API requests or processing multiple items simultaneously to improve performance.
+
+## Branch Strategy
+
+This repository is structured using two branches:
+- `main`: Contains the required MVP with all mandatory features.
+- `feature/advanced`: Contains nice-to-have additions such as `Session()`, regex text cleaning, and multithreading.
+
+This approach ensures a clean separation between baseline functionality and performance/UX improvements.
+
+## Feature Completion Table (**this is not yet accurate - implementation pending**)
+
+## ✅ Feature Checklist
+
+| Feature                                                                                                    | Required Type  | Implemented |
+|------------------------------------------------------------------------------------------------------------|----------------|-------------|
+| Create a virtual environment using `venv`                                                                  | Mandatory      | ✅ Yes       |
+| Install required packages via `requirements.txt`                                                           | Mandatory      | ✅ Yes       |
+| Call an external API using `requests`                                                                      | Mandatory      | ✅ Yes       |
+| Handle cookies to access the API                                                                           | Mandatory      | ✅ Yes       |
+| Retrieve list of countries via `/countries` endpoint                                                       | Mandatory      | ✅ Yes       |
+| Retrieve list of leaders via `/leaders` endpoint                                                           | Mandatory      | ✅ Yes       |
+| Retrieve and parse Wikipedia bio from `wikipedia_url`                                                      | Mandatory      | ✅ Yes       |
+| Extract first paragraph using `BeautifulSoup`                                                              | Mandatory      | ✅ Yes       |
+| Save results in a structured JSON file                                                                     | Mandatory      | ✅ Yes       |
+| Create a custom exception with proper handling                                                             | Mandatory      | ✅ Yes       |
+| Provide a Jupyter notebook (`wikipedia_scraper.ipynb`) that shows the workflow                            | Mandatory      | ✅ Yes       |
+| Refactor into a Python module `leaders_scraper.py` with OOP design (`WikipediaScraper` class)             | Mandatory      | ✅ Yes       |
+| Provide a `main.py` script to run the scraper                                                              | Mandatory      | ✅ Yes       |
+| Create a GitHub repository with meaningful name and clean folder structure                                 | Mandatory      | ✅ Yes       |
+| Write a clear README with description, installation, usage, visuals, etc.                                  | Mandatory      | ✅ Yes       |
+
+### WikipediaScraper Class Implementation
+
+| Feature                                                                                                    | Required Type  | Implemented |
+|------------------------------------------------------------------------------------------------------------|----------------|-------------|
+| Attribute: `base_url`                                                                                      | Mandatory      | ✅ Yes       |
+| Attribute: `country_endpoint`                                                                              | Mandatory      | ✅ Yes       |
+| Attribute: `leaders_endpoint`                                                                              | Mandatory      | ✅ Yes       |
+| Attribute: `cookies_endpoint`                                                                              | Mandatory      | ✅ Yes       |
+| Attribute: `leaders_data`                                                                                  | Mandatory      | ✅ Yes       |
+| Attribute: `cookie`                                                                                        | Mandatory      | ✅ Yes       |
+| Method: `refresh_cookie()`                                                                                 | Mandatory      | ✅ Yes       |
+| Method: `get_countries()`                                                                                  | Mandatory      | ✅ Yes       |
+| Method: `get_leaders(country)`                                                                             | Mandatory      | ✅ Yes       |
+| Method: `get_first_paragraph(wikipedia_url)`                                                               | Mandatory      | ✅ Yes       |
+| Method: `to_json_file(filepath)`                                                                           | Mandatory      | ✅ Yes       |
+
+### Nice-to-have / Advanced Features
+
+| Feature                                                                                                    | Required Type  | Implemented  |
+|------------------------------------------------------------------------------------------------------------|----------------|--------------|
+| Use `requests.Session()` instead of `requests.get()`                                                       | Optional       | ✅ Yes       |
+| Implement CSV export option                                                                                | Optional       | ✅ Yes       |
+| Speed up scraping using multithreading (e.g. with `ThreadPoolExecutor`)                                    | Optional       | ✅ Yes       |
+| Use regex to clean text data from Wikipedia                                                                | Optional       | ✅ Yes       |
+| Organize must-have and nice-to-have code in separate Git branches (partially done, as the branching strategy was applied later in the process)           | Optional       | ✅ Yes       |
+
+## License
+This code is protected under the MIT license.
 
 ## Evaluation
 
@@ -128,5 +152,3 @@ As an exercise, keep the must-have version separate from the nice-to-have versio
 |                | Multi-processing                                             |        |
 
 ## You got this!
-
-![You've got this!](https://media.tenor.com/Y56BShm-6V0AAAAi/wikipedia-wikipedian.gif)
