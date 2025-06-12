@@ -4,7 +4,45 @@ from bs4 import BeautifulSoup
 import json
 import re
 import time
+from multiprocessing import Pool, cpu_count
 
+# ---------------------------------------------------------------------------------
+# 🧠 Pickling Explanation:
+# Pickling is the process of serializing a Python object into a byte stream,
+# so it can be saved to a file or transferred over a network.
+# Unpickling is the reverse — turning that stream back into a Python object.
+# 
+# 🔧 What it's used for:
+# - Saving models (e.g. .pkl files in machine learning)
+# - Passing data between processes (like here in multiprocessing)
+# - Saving and reloading program state
+#
+# Why it matters for multiprocessing:
+# When using multiprocessing.Pool, any function or data passed to worker processes
+# must be picklable. That's why we define `fetch_summary_for_leader()` OUTSIDE
+# of the class — top-level functions are picklable, nested ones are not.
+# ---------------------------------------------------------------------------------
+# --- Standalone function for multiprocessing (must be top-level for pickling) ----
+
+def fetch_summary_for_leader(leader):
+    url = leader.get("wikipedia_url", "")
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return leader
+        soup = BeautifulSoup(response.text, 'html.parser')
+        paragraphs = soup.find_all('p')
+        for p in paragraphs:
+            text = p.get_text()
+            if text.strip() and not text.lower().startswith("coordinates"):
+                # Clean and sanitize using regex
+                summary = re.sub(r"\[\d+\]|\(.*?\)|<.*?>|\/|\u2014|\u2013|\u2020|\u2192|pronunciation:.*|citation needed", "", text, flags=re.IGNORECASE)
+                summary = re.sub(r"\s+", " ", summary)
+                leader["summary"] = summary.strip()
+                return leader
+    except:
+        return leader
+    return
 class WikipediaScraper:
     def __init__(self):
         # Base URL and endpoints
@@ -42,7 +80,8 @@ class WikipediaScraper:
 
         return resp.json()
 
-    def get_leaders(self, country: str) -> None:
+    # def get_leaders(self, country: str) -> None:
+    def get_leaders(self, country, use_multiprocessing=False):
         """Fetch leaders for a specific country and store them in leaders_data."""
         url = f"{self.base_url}{self.leaders_endpoint}?country={country}"
         # resp = requests.get(url, cookies=self.cookie)
@@ -54,9 +93,17 @@ class WikipediaScraper:
 
         if resp.status_code == 200:
             leaders = resp.json()
-            for leader in leaders:
-                url = leader.get("wikipedia_url")
-                leader["summary"] = self.get_first_paragraph(url) if url else None
+
+            # Multiprocessing enabled?
+            if use_multiprocessing:
+                with Pool(cpu_count()) as pool:
+                    leaders = pool.map(fetch_summary_for_leader, leaders)
+            else:
+                # Fallback: sequential summary fetching
+                for leader in leaders:
+                    url = leader.get("wikipedia_url", "")
+                    leader["summary"] = self.get_first_paragraph(url)
+
             self.leaders_data[country] = leaders
 
     def get_first_paragraph(self, wikipedia_url: str) -> str:
