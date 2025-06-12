@@ -1,4 +1,5 @@
 import requests
+import csv
 from bs4 import BeautifulSoup
 import json
 import re
@@ -31,19 +32,25 @@ class WikipediaScraper:
 
     def get_countries(self) -> list:
         """Retrieve the list of countries."""
-        resp = requests.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+        # resp = requests.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+        resp = self.session.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+
         if resp.status_code == 403:
             self.cookie = self.refresh_cookie()
-            resp = requests.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+            # resp = requests.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+            resp = self.session.get(self.base_url + self.country_endpoint, cookies=self.cookie)
+
         return resp.json()
 
     def get_leaders(self, country: str) -> None:
         """Fetch leaders for a specific country and store them in leaders_data."""
         url = f"{self.base_url}{self.leaders_endpoint}?country={country}"
-        resp = requests.get(url, cookies=self.cookie)
+        # resp = requests.get(url, cookies=self.cookie)
+        resp = self.session.get(url, cookies=self.cookie)
+
         if resp.status_code == 403:
             self.cookie = self.refresh_cookie()
-            resp = requests.get(url, cookies=self.cookie)
+            # resp = requests.get(url, cookies=self.cookie)
 
         if resp.status_code == 200:
             leaders = resp.json()
@@ -81,3 +88,25 @@ class WikipediaScraper:
         """Save the leaders_data to a JSON file."""
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(self.leaders_data, f, ensure_ascii=False, indent=2)
+
+
+    def to_csv_file(self, filepath: str) -> None:
+        """Save the leaders_data to a CSV file (flattened structure)."""
+        with open(filepath, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=[
+                "country", "id", "first_name", "last_name", "birth_year", "wikipedia_url", "summary"
+            ])
+            writer.writeheader()
+            for country, leaders in self.leaders_data.items():
+                for leader in leaders:
+                    row = {
+                        "country": country,
+                        "id": leader.get("id", ""),
+                        "first_name": leader.get("first_name", ""),
+                        "last_name": leader.get("last_name", ""),
+                        "birth_year": leader.get("birth_year", ""),
+                        "wikipedia_url": leader.get("wikipedia_url", ""),
+                        "summary": leader.get("summary", "")
+                    }
+                    writer.writerow(row)
+
